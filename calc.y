@@ -13,8 +13,9 @@ char format[20];
 
 %}
 
-%token NUMBER ANS SPACE EOLN
-%token PLUS MINUS DIV MUL OPENBRACKET CLOSEBRACKET
+%token NUMBER ANS VARNAME SPACE EOLN
+%token PLUS MINUS DIV MUL OPENBRACKET CLOSEBRACKET SET
+%right SET
 %left PLUS MINUS
 %left MUL DIV
 
@@ -25,6 +26,9 @@ list:   /* пусто */
           { printf( format , (double) $2 ); ans=$2; }
         ;
 expr:   add_expr
+        | set_expr
+        ;
+set_expr: VARNAME SET add_expr { $$ = $3 }
         ;
 add_expr: mul_expr
         | add_expr PLUS mul_expr  { $$ = $1 + $3; }

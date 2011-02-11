@@ -9,10 +9,11 @@ int debug = 0;
 
 %}
 
-D       [0-9.]
+D       [0-9]
+S       [a-zA-Z_]
 %%
 [ \t]+  return SPACE;
-{D}+    { sscanf( yytext, "%lf", &yylval ); return NUMBER ; }
+{D}+(\.{D}*)?    { sscanf( yytext, "%lf", &yylval ); return NUMBER; }
 "+"     return PLUS;
 "-"     return MINUS;
 "/"     return DIV;
@@ -20,4 +21,11 @@ D       [0-9.]
 "("     return OPENBRACKET;
 ")"     return CLOSEBRACKET;
 "ans"   return ANS;
+"="     return SET;
+{S}({S}|{D})* return VARNAME;
 "\n"    return EOLN;
+%%
+/*
+  to verbose lexer use regexp(in emacs syntax):
+  return \(.*\); => { printf("\1\n"); \& }
+*/
