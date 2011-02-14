@@ -39,6 +39,7 @@ S       [a-zA-Z_]
 "("     return OPENBRACKET;
 ")"     return CLOSEBRACKET;
 "ans"   return ANS;
+"var"   return VAR;
 "="     return SET;
 {S}({S}|{D})*    { yylval.string = strdup(yytext); return VARNAME; }
 "\n"    return EOLN;

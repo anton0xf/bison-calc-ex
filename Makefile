@@ -23,7 +23,7 @@ all:	$(PROGRAM)
 .c.o:	$(SRCS)
 	$(CC) $(CFLAGS) -I $(CCAN_HOME) -c $*.c -o $@ -O
 calc.tab.c: calc.y
-	bison $(YFLAGS) calc.y
+	bison -ggrammar.dot $(YFLAGS) calc.y
 lex.yy.c: calc.lex
 	flex calc.lex
 calc:	$(OBJS)
@@ -31,5 +31,8 @@ calc:	$(OBJS)
 test: calc run-test.sh tests
 	cat tests | sed -e 's/#.*$$//' | awk '/.+/ { print($$0) }'|\
 		tr '\n' ',' | xargs --delim ',' -n 2 ./run-test.sh "$(PROGRAM)"
+grammar.dot: calc.tab.c
+grammar.png: grammar.dot
+	dot -Tpng -ogrammar.png grammar.dot
 clean:
-	rm -f $(OBJS) core *~ \#* *.o $(PROGRAM) y.* lex.yy.* calc.tab.*
+	rm -f $(OBJS) core *~ \#* *.o $(PROGRAM) y.* lex.yy.* calc.tab.* *.dot *.png

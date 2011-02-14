@@ -2,3 +2,5 @@ calc
 *.tab.[cho]
 *.yy.[cho]
 *~
+*.dot
+*.png

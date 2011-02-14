@@ -24,5 +24,7 @@ To build this:
    for build calc executable, or
     $ make test
    for simple tests
+    $ make prammar.png
+   to get grammar parser automata graphic representation (require graphviz)
 
 

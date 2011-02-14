@@ -56,7 +56,7 @@ static double get_var(struct htable *ht, const *name);
 %type <val> expr set_expr add_expr mul_expr unary_expr primary
 
 %token <val> NUMBER <val> ANS <string> VARNAME SPACE EOLN
-%token PLUS MINUS DIV MUL OPENBRACKET CLOSEBRACKET SET
+%token PLUS MINUS DIV MUL OPENBRACKET CLOSEBRACKET VAR SET
 %right SET
 %left PLUS MINUS
 %left MUL DIV
@@ -73,10 +73,10 @@ delim:    /*empty*/
 expr:     add_expr
         | set_expr
         ;
-set_expr: VARNAME set add_expr {
-  set_var(ht, (void*)$1, $3);
-  free($1);
-  $$ = $3; }
+set_expr: VAR SPACE VARNAME set add_expr {
+  set_var(ht, (void*)$3, $5);
+  free($3);
+  $$ = $5; }
         ;
 set:      delim SET delim
         ;
@@ -102,9 +102,6 @@ unary_expr: primary
         ;
 primary:  delim NUMBER delim { $$ = $2; }
         | delim ANS delim { $$ = ans; }
-        | VARNAME delim { //why this hack needed?
-	  $$ = get_var(ht, (void*)$1);
-	  free($1); }
         | delim VARNAME delim {
 	  $$ = get_var(ht, (void*)$2);
 	  free($2); }
