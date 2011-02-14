@@ -67,51 +67,31 @@ list:     /*empty*/
         | list expr EOLN
           { printf( format , (double) $2 ); ans=$2; }
         ;
-delim:    /*empty*/
-        | SPACE
-	;
 expr:     add_expr
         | set_expr
         ;
-set_expr: VAR SPACE VARNAME set add_expr {
-  set_var(ht, (void*)$3, $5);
-  free($3);
-  $$ = $5; }
-        ;
-set:      delim SET delim
+set_expr: VAR VARNAME SET add_expr {
+  set_var(ht, (void*)$2, $4);
+  free($2);
+  $$ = $4; }
         ;
 add_expr: mul_expr 
-        | add_expr plus mul_expr  { $$ = $1 + $3; }
-        | add_expr minus mul_expr { $$ = $1 - $3; }
-        ;
-plus:     delim PLUS delim
-        ;
-minus:    delim MINUS delim
+        | add_expr PLUS mul_expr  { $$ = $1 + $3; }
+        | add_expr MINUS mul_expr { $$ = $1 - $3; }
         ;
 mul_expr: unary_expr 
-        | mul_expr mul unary_expr { $$ = $1 * $3; }
-        | mul_expr div unary_expr { $$ = $1 / $3; }
-        ;
-mul:      delim MUL delim
-        ;
-div:      delim DIV delim
+        | mul_expr MUL unary_expr { $$ = $1 * $3; }
+        | mul_expr DIV unary_expr { $$ = $1 / $3; }
         ;
 unary_expr: primary 
         | PLUS primary { $$ = $2; }
         | MINUS primary { $$ = -$2; }
         ;
-primary:  delim NUMBER delim { $$ = $2; }
-        | delim ANS delim { $$ = ans; }
-        | delim VARNAME delim {
-	  $$ = get_var(ht, (void*)$2);
-	  free($2); }
-        | openbracket expr closebracket { $$ = $2; }
+primary:  NUMBER { $$ = $1; }
+        | ANS { $$ = ans; }
+        | VARNAME {$$ = get_var(ht, (void*)$1); free($1); }
+        | OPENBRACKET expr CLOSEBRACKET { $$ = $2; }
         ;
-openbracket: delim OPENBRACKET delim
-        ;
-closebracket: delim CLOSEBRACKET delim
-        ;
-
 %%
 
 #include <stdio.h>

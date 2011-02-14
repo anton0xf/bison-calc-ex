@@ -30,7 +30,7 @@ int debug = 0;
 D       [0-9]
 S       [a-zA-Z_]
 %%
-[ \t]+  return SPACE;
+[ \t]+  {/* ignore spaces */}
 {D}+(\.{D}*)?    { sscanf( yytext, "%lf", &yylval.val ); return NUMBER; }
 "+"     return PLUS;
 "-"     return MINUS;
