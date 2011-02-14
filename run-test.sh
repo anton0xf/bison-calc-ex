@@ -14,12 +14,12 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-echo -e "$1"
+PROGRAM=$1
+echo -e "$2"
 echo " =>"
-(echo -e "$1" | ./$PROGRAM) || echo FAIL
-val=$(echo -e "$1" | ./$PROGRAM)
-if [ "$val" = "$(echo -e "$2")" ]
+(echo -e "$2" | ./$PROGRAM) || echo FAIL
+val=$(echo -e "$2" | ./$PROGRAM)
+if [ "$val" = "$(echo -e "$3")" ]
 then
     echo " ---------------- OK"
 else

@@ -21,15 +21,15 @@ SRCS          = calc.tab.c lex.yy.c
 CC            = gcc 
 all:	$(PROGRAM)
 .c.o:	$(SRCS)
-	$(CC) -c $*.c -o $@ -O
+	$(CC) $(CFLAGS) -I $(CCAN_HOME) -c $*.c -o $@ -O
 calc.tab.c: calc.y
 	bison $(YFLAGS) calc.y
 lex.yy.c: calc.lex
 	flex calc.lex
 calc:	$(OBJS)
-	$(CC) $(OBJS)  -o $@ -lfl -lm
+	$(CC) $(CFLAGS) $(OBJS)  -o $@ -lfl -lm -L=$(CCAN_HOME) -lccan
 test: calc run-test.sh tests
 	cat tests | sed -e 's/#.*$$//' | awk '/.+/ { print($$0) }'|\
-		tr '\n' ',' | xargs --delim ',' -n 2 ./run-test.sh 
+		tr '\n' ',' | xargs --delim ',' -n 2 ./run-test.sh "$(PROGRAM)"
 clean:
 	rm -f $(OBJS) core *~ \#* *.o $(PROGRAM) y.* lex.yy.* calc.tab.*

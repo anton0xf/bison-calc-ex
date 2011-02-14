@@ -16,12 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
-#define YYSTYPE double
 #include "calc.tab.h"
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 
-extern double yylval;
+extern YYSTYPE yylval;
+
 int debug = 0;
 
 %}
@@ -30,7 +31,7 @@ D       [0-9]
 S       [a-zA-Z_]
 %%
 [ \t]+  return SPACE;
-{D}+(\.{D}*)?    { sscanf( yytext, "%lf", &yylval ); return NUMBER; }
+{D}+(\.{D}*)?    { sscanf( yytext, "%lf", &yylval.val ); return NUMBER; }
 "+"     return PLUS;
 "-"     return MINUS;
 "/"     return DIV;
@@ -39,10 +40,10 @@ S       [a-zA-Z_]
 ")"     return CLOSEBRACKET;
 "ans"   return ANS;
 "="     return SET;
-{S}({S}|{D})* return VARNAME;
+{S}({S}|{D})*    { yylval.string = strdup(yytext); return VARNAME; }
 "\n"    return EOLN;
 %%
 /*
   to verbose lexer use regexp(in emacs syntax):
-  return \(.*\); => { printf("\1\n"); \& }
+  return \(.*\); => { printf("\1\\n"); \& }
 */

@@ -24,14 +24,38 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#define YYSTYPE double
+
+#include <ccan/htable/htable.h>
+#include <ccan/hash/hash.h>
+#include <stdio.h>
+#include <err.h>
+#include <string.h>
 
 double ans;
 char format[20];
 
+struct var {
+  const char *name;
+  double val;
+};
+
+struct htable *ht;
+
+static size_t rehash(const void *e, void *unused);
+static bool streq(const void *e, void *string);
+static void set_var(struct htable *ht, const *name, const double val);
+static double get_var(struct htable *ht, const *name);
+
 %}
 
-%token NUMBER ANS VARNAME SPACE EOLN
+%union YYSTYPE {
+  double val;
+  char *string;
+}
+
+%type <val> expr set_expr add_expr mul_expr unary_expr primary
+
+%token <val> NUMBER <val> ANS <string> VARNAME SPACE EOLN
 %token PLUS MINUS DIV MUL OPENBRACKET CLOSEBRACKET SET
 %right SET
 %left PLUS MINUS
@@ -49,11 +73,14 @@ delim:    /*empty*/
 expr:     add_expr
         | set_expr
         ;
-set_expr: VARNAME set add_expr { $$ = $3 }
+set_expr: VARNAME set add_expr {
+  set_var(ht, (void*)$1, $3);
+  free($1);
+  $$ = $3; }
         ;
 set:      delim SET delim
         ;
-add_expr: mul_expr
+add_expr: mul_expr 
         | add_expr plus mul_expr  { $$ = $1 + $3; }
         | add_expr minus mul_expr { $$ = $1 - $3; }
         ;
@@ -61,7 +88,7 @@ plus:     delim PLUS delim
         ;
 minus:    delim MINUS delim
         ;
-mul_expr: unary_expr
+mul_expr: unary_expr 
         | mul_expr mul unary_expr { $$ = $1 * $3; }
         | mul_expr div unary_expr { $$ = $1 / $3; }
         ;
@@ -69,12 +96,18 @@ mul:      delim MUL delim
         ;
 div:      delim DIV delim
         ;
-unary_expr: primary
+unary_expr: primary 
         | PLUS primary { $$ = $2; }
         | MINUS primary { $$ = -$2; }
         ;
 primary:  delim NUMBER delim { $$ = $2; }
         | delim ANS delim { $$ = ans; }
+        | VARNAME delim { //why this hack needed?
+	  $$ = get_var(ht, (void*)$1);
+	  free($1); }
+        | delim VARNAME delim {
+	  $$ = get_var(ht, (void*)$2);
+	  free($2); }
         | openbracket expr closebracket { $$ = $2; }
         ;
 openbracket: delim OPENBRACKET delim
@@ -87,13 +120,55 @@ closebracket: delim CLOSEBRACKET delim
 #include <stdio.h>
 #include <ctype.h>
 char *progname;
-double yylval;
+//double yylval;
+
+// Wrapper for rehash function pointer.
+static size_t rehash(const void *e, void *unused)
+{
+  return hash_string(((struct var *)e)->name);
+}
+
+// Comparison function.
+static bool streq(const void *e, void *string)
+{
+  return strcmp(((struct var *)e)->name, string) == 0;
+}
+
+//set variable
+static void set_var(struct htable *ht, const *name, const double val){
+  struct var *n;
+  n = htable_get(ht, hash_string((char *)name), streq, name);
+  if( n == NULL){
+    n = malloc(sizeof(*n));
+    n->name = strdup((char*)name);
+    n->val = val;
+
+    htable_add(ht, hash_string(n->name), n);
+  }else{
+    n->val = val;
+  }
+  
+}
+
+//get variable
+static double get_var(struct htable *ht, const *name){
+  struct var *n;
+  n = htable_get(ht, hash_string((char*)name), streq, name);
+  if(n != NULL){
+    return n->val;
+  }else{
+    printf("There are no variables with name: %s, use 0.0", (char*)name);
+    return 0.;
+  }
+}
 
 main( argc, argv )
 char *argv[];
 {
   progname = argv[0];
   strcpy(format,"%g\n");
+  ht = htable_new(rehash, NULL);
+  
   yyparse();
 }
 
