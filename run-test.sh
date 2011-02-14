@@ -1,3 +1,4 @@
+#!/bin/sh
 # simple calculator example based on flex/bison
 # Copyright (C) 2011  anton0xf <anton0xf@gmail.com>
 
@@ -14,22 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-YFLAGS        = -d
-PROGRAM       = calc
-OBJS          = calc.tab.o lex.yy.o
-SRCS          = calc.tab.c lex.yy.c
-CC            = gcc 
-all:	$(PROGRAM)
-.c.o:	$(SRCS)
-	$(CC) -c $*.c -o $@ -O
-calc.tab.c: calc.y
-	bison $(YFLAGS) calc.y
-lex.yy.c: calc.lex
-	flex calc.lex
-calc:	$(OBJS)
-	$(CC) $(OBJS)  -o $@ -lfl -lm
-test: calc run-test.sh tests
-	cat tests | sed -e 's/#.*$$//' | awk '/.+/ { print($$0) }'|\
-		tr '\n' ',' | xargs --delim ',' -n 2 ./run-test.sh 
-clean:
-	rm -f $(OBJS) core *~ \#* *.o $(PROGRAM) y.* lex.yy.* calc.tab.*
+echo "$1"
+(echo "$1" | ./$PROGRAM) || echo FAIL
+val=$(echo "$1" | ./$PROGRAM)
+if [ "$val" = "$2" ]
+then
+    echo " ---------------- OK"
+else
+    echo " ---------------- FAIL"
+fi
