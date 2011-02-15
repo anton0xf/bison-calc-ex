@@ -70,10 +70,10 @@ list:     /*empty*/
 expr:     add_expr
         | set_expr
         ;
-set_expr: VAR VARNAME SET add_expr {
-  set_var(ht, (void*)$2, $4);
-  free($2);
-  $$ = $4; }
+set_expr: VARNAME SET add_expr {
+  set_var(ht, (void*)$1, $3);
+  free($1);
+  $$ = $3; }
         ;
 add_expr: mul_expr 
         | add_expr PLUS mul_expr  { $$ = $1 + $3; }
