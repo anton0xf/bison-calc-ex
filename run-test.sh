@@ -1,5 +1,6 @@
 #!/bin/sh
-# simple calculator example based on flex/bison
+# This file is part of bison-calc-ex:
+# simple calculator example based on flex/bison.
 # Copyright (C) 2011  anton0xf <anton0xf@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify

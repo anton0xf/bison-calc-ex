@@ -1,4 +1,5 @@
-# simple calculator example based on flex/bison
+# This file is part of bison-calc-ex:
+# simple calculator example based on flex/bison.
 # Copyright (C) 2011  anton0xf <anton0xf@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
@@ -29,8 +30,11 @@ lex.yy.c: calc.lex
 calc:	$(OBJS)
 	$(CC) $(CFLAGS) $(OBJS)  -o $@ -lfl -lm -L=$(CCAN_HOME) -lccan
 test: calc run-test.sh tests
-	cat tests | sed -e 's/#.*$$//' | awk '/.+/ { print($$0) }'|\
-		tr '\n' ',' | xargs --delim ',' -n 2 ./run-test.sh "$(PROGRAM)"
+#	sed -e 's/#.*$//' # rm comments
+#	awk '/.+/ { print($0) }' # rm empty lines
+	cat tests | sed -e 's/#.*$$//' \
+		| awk '/.+/ { print($$0) }' \
+		| tr '\n' ',' | xargs --delim ',' -n 2 ./run-test.sh "$(PROGRAM)"
 grammar.dot: calc.tab.c
 grammar.png: grammar.dot
 	dot -Tpng -ogrammar.png grammar.dot
